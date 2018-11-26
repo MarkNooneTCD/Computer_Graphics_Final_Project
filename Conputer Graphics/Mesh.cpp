@@ -8,6 +8,7 @@ Mesh::Mesh(const char* fn, unsigned int vao, GLuint spID) {
 	modelRot = identity_mat4();
 	modelScale = identity_mat4();
 	modelTrans = identity_mat4();
+	rot_z = 0.0f;
 }
 
 Mesh::Mesh() {
@@ -17,6 +18,7 @@ Mesh::Mesh() {
 	modelRot = identity_mat4();
 	modelScale = identity_mat4();
 	modelTrans = identity_mat4();
+	rot_z = 0.0f;
 }
 
 
@@ -26,6 +28,14 @@ void Mesh::scaleModel(vec3 scaleMat) {
 
 void Mesh::translateModel(vec3 translateMat) {
 	modelTrans = translate(modelTrans, translateMat);
+}
+
+void Mesh::rotate_z_axis(float degrees) {
+	rot_z +=  degrees;
+}
+
+void Mesh::setTransMat(vec3 translateMat) {
+	modelTrans = translate(identity_mat4(), translateMat);
 }
 
 void Mesh::setRotation(int i) {
@@ -56,6 +66,7 @@ void Mesh::setInnerRotation() {
 mat4 Mesh::getModel() {
 	modelRot = identity_mat4();
 	setInnerRotation();
+	modelRot = rotate_z_deg(modelRot, rot_z);
 	return modelTrans * (modelRot * (modelScale * model));
 }
 

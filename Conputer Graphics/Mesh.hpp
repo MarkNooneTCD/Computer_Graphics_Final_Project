@@ -12,7 +12,9 @@ public:
 	mat4 getModel();
 	void scaleModel(vec3 scaleMat);
 	void translateModel(vec3 translateMat);
+	void rotate_z_axis(float degrees);
 	void setRotation(int rot);
+	void setTransMat(vec3 translateMat);
 	glm::vec3 getModelCoord();
 
 private:
@@ -25,7 +27,7 @@ private:
 	GLuint shaderProgramID;
 	GLuint loc1, loc2, loc3;
 	unsigned int vao;
-
+	float rot_z;
 	void setInnerRotation();
 	ModelData load_mesh(const char* file_name);
 };

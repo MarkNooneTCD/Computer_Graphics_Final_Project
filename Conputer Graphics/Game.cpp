@@ -7,8 +7,8 @@ GLfloat rotate_y = 0.0f;
 GLuint VAOS[10];
 mat4 modelTrans = identity_mat4();
 MyRectangle ground_plane;
-float zoom = 20.0f;
-float camera_alpha = 0.0f;
+float zoom = 16.0f;
+float camera_alpha = 260.0f;
 
 void display() {
 
@@ -53,6 +53,35 @@ void display() {
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["gino"].getModel().m);
 	glDrawArrays(GL_TRIANGLES, 0, meshes["gino"].mesh_data.mPointCount);
 
+	glBindVertexArray(VAOS[4]);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["car"].getModel().m);
+	glDrawArrays(GL_TRIANGLES, 0, meshes["car"].mesh_data.mPointCount);
+	
+	// Setup animated Car
+	glBindVertexArray(VAOS[5]);
+	meshes["wheel1"].setTransMat(vec3(meshes["car"].getModelCoord()[0] + 1.8f, meshes["car"].getModelCoord()[1] + -0.2f, meshes["car"].getModelCoord()[2] + 1.6f));
+	meshes["wheel1"].rotate_z_axis(1.0f);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["wheel1"].getModel().m);
+	glDrawArrays(GL_TRIANGLES, 0, meshes["wheel1"].mesh_data.mPointCount);
+	
+	glBindVertexArray(VAOS[6]);
+	meshes["wheel2"].setTransMat(vec3(meshes["car"].getModelCoord()[0] + 2.3f, meshes["car"].getModelCoord()[1] + -0.2f, meshes["car"].getModelCoord()[2] -2.4f));
+	meshes["wheel2"].rotate_z_axis(1.0f);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["wheel2"].getModel().m);
+	glDrawArrays(GL_TRIANGLES, 0, meshes["wheel2"].mesh_data.mPointCount);
+	
+	glBindVertexArray(VAOS[7]);
+	meshes["wheel3"].setTransMat(vec3(meshes["car"].getModelCoord()[0] - 1.8f, meshes["car"].getModelCoord()[1] + -0.2f, meshes["car"].getModelCoord()[2] + 1.5f));
+	meshes["wheel3"].rotate_z_axis(1.0f);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["wheel3"].getModel().m);
+	glDrawArrays(GL_TRIANGLES, 0, meshes["wheel3"].mesh_data.mPointCount);
+
+	glBindVertexArray(VAOS[8]);
+	meshes["wheel4"].setTransMat(vec3(meshes["car"].getModelCoord()[0] - 1.4f, meshes["car"].getModelCoord()[1] + -0.2f, meshes["car"].getModelCoord()[2] - 2.4f));
+	meshes["wheel4"].rotate_z_axis(1.0f);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["wheel4"].getModel().m);
+	glDrawArrays(GL_TRIANGLES, 0, meshes["wheel4"].mesh_data.mPointCount);
+	
 	glutSwapBuffers();
 }
 
@@ -96,6 +125,29 @@ void init()
 	meshes["gino"] = Mesh("../Models/Chef Gino/Gino/Gino.dae", VAOS[3], shaderProgramID);
 	meshes["gino"].generateObjectBufferMesh();
 	meshes["gino"].scaleModel(vec3(0.8, 0.8, 0.8));
+
+	meshes["car"] = Mesh("../Models/Car/car.obj", VAOS[4], shaderProgramID);
+	meshes["car"].generateObjectBufferMesh();
+	meshes["car"].translateModel(vec3(-10.0f, 0.6f, 10.0f));
+	meshes["car"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
+
+	meshes["wheel1"] = Mesh("../Models/Car/wheel.obj", VAOS[5], shaderProgramID);
+	meshes["wheel1"].generateObjectBufferMesh();
+	meshes["wheel1"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
+
+	meshes["wheel2"] = Mesh("../Models/Car/wheel.obj", VAOS[6], shaderProgramID);
+	meshes["wheel2"].generateObjectBufferMesh();
+	meshes["wheel2"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
+	meshes["wheel2"].setRotation(3);
+
+	meshes["wheel3"] = Mesh("../Models/Car/wheel.obj", VAOS[7], shaderProgramID);
+	meshes["wheel3"].generateObjectBufferMesh();
+	meshes["wheel3"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
+	
+	meshes["wheel4"] = Mesh("../Models/Car/wheel.obj", VAOS[8], shaderProgramID);
+	meshes["wheel4"].generateObjectBufferMesh();
+	meshes["wheel4"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
+	meshes["wheel4"].setRotation(3);
 	
 	// Create ground plane
 	//glBindVertexArray(VAOS[2]);
