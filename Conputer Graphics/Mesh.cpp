@@ -1,13 +1,66 @@
 #include "Mesh.hpp"
 
-Mesh::Mesh(const char* fn, GLuint spID) {
+Mesh::Mesh(const char* fn, unsigned int vao, GLuint spID) {
 	this->file_name = fn;
 	this->shaderProgramID = spID;
+	this->vao = vao;
+	model = identity_mat4();
+	modelRot = identity_mat4();
+	modelScale = identity_mat4();
+	modelTrans = identity_mat4();
 }
 
 Mesh::Mesh() {
 	this->file_name = "toilet.obj";
 	this->shaderProgramID = 1;
+	model = identity_mat4();
+	modelRot = identity_mat4();
+	modelScale = identity_mat4();
+	modelTrans = identity_mat4();
+}
+
+
+void Mesh::scaleModel(vec3 scaleMat) {
+	modelScale = scale(modelScale, scaleMat);
+}
+
+void Mesh::translateModel(vec3 translateMat) {
+	modelTrans = translate(modelTrans, translateMat);
+}
+
+void Mesh::setRotation(int i) {
+	if (i < 4 && i >= 0)
+		currentRot = i;
+}
+
+void Mesh::setInnerRotation() {
+	switch (currentRot)
+	{
+	case 0: // Left
+		modelRot = rotate_y_deg(modelRot, 90.0f);
+		break;
+	case 1: // Right
+		modelRot = rotate_y_deg(modelRot, -90.0f);
+		break;
+	case 2: // Up
+		modelRot = rotate_y_deg(modelRot, 0.0f);
+		break;
+	case 3: // Down
+		modelRot = rotate_y_deg(modelRot, 180.0f);
+		break;
+	default:
+		break;
+	}
+}
+
+mat4 Mesh::getModel() {
+	modelRot = identity_mat4();
+	setInnerRotation();
+	return modelTrans * (modelRot * (modelScale * model));
+}
+
+glm::vec3 Mesh::getModelCoord() {
+	return glm::vec3(modelTrans.m[12], modelTrans.m[13], modelTrans.m[14]);
 }
 
 ModelData Mesh::load_mesh(const char* file_name) {
@@ -91,8 +144,7 @@ void Mesh::generateObjectBufferMesh() {
 	//	glGenBuffers (1, &vt_vbo);
 	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
 	//	glBufferData (GL_ARRAY_BUFFER, monkey_head_data.mTextureCoords * sizeof (vec2), &monkey_head_data.mTextureCoords[0], GL_STATIC_DRAW);
-
-	unsigned int vao = 0;
+	
 	glBindVertexArray(vao);
 
 	glEnableVertexAttribArray(loc1);

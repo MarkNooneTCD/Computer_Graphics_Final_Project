@@ -1,6 +1,8 @@
 #pragma once
 // Windows includes (For Time, IO, etc.)
 #define NOMINMAX
+#define _USE_MATH_DEFINES
+
 #include <windows.h>
 #include <mmsystem.h>
 #include <iostream>
@@ -18,6 +20,7 @@
 #include <assimp/cimport.h> // scene importer
 #include <assimp/scene.h> // collects data
 #include <assimp/postprocess.h> // various extra operations
+#include <assimp/DefaultLogger.hpp>
 
 // Project includes
 #include "maths_funcs.h"
@@ -35,8 +38,19 @@ typedef struct
 	std::vector<vec2> mTextureCoords;
 } ModelData;
 
+struct Vertex {
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexCoords;
+};
+
+typedef struct Texture {
+	unsigned int id;
+	std::string type;
+} TextureData;
+
 class Constants {
 public:
-	static const int width = 800;
-	static const int height = 600;
+	static const int game_width = 800;
+	static const int game_height = 600;
 };

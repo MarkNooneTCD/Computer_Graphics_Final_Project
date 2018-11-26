@@ -1,17 +1,14 @@
 #pragma once
-#include <vector>
-#include "glm/glm.hpp"
+#include "Constants.hpp"
 
-class Rectangle {
+class MyRectangle {
 public:
-	glm::vec3 RGB_color;
-	std::vector<glm::vec3> rectangle_corners;
-	Rectangle(std::vector<glm::vec3> rectangle_corners, glm::vec3 RGB_color);
-	const glm::vec3& operator[](const size_t& index) const;
-};
-
-class Block {
-public:
-	std::vector<Rectangle> block_sides;
-	Block(std::vector<Rectangle> block_sides);
+	GLfloat* colors;
+	GLfloat* vertices;
+	MyRectangle(GLfloat vertices[], GLfloat colours[], GLuint numVertices);
+	MyRectangle();
+	GLuint generateObjectBuffer();
+	void linkBufferToShader(GLuint shaderProgramID);
+private: 
+	GLuint numVertices;
 };

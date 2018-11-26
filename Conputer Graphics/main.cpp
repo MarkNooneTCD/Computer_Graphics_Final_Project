@@ -7,12 +7,13 @@ int main(int argc, char** argv) {
 	// Set up the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(Constants::width, Constants::height);
+	glutInitWindowSize(Constants::game_width, Constants::game_height);
 	glutCreateWindow("Computer Graphics: The Finale");
 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 	glutIdleFunc(updateScene);
+	glutKeyboardFunc(processNormalKeys);
 	glutSpecialFunc(keypress);
 
 	// A call to glewInit() must be done after glut is initialized!
