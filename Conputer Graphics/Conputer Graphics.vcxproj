@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Mark Noone\Desktop\Conputer Graphics\assimp\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\glm;C:\Users\Mark Noone\Desktop\Conputer Graphics\glew-1.10.0\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Mark Noone\Desktop\Conputer Graphics\stb_image;C:\Users\Mark Noone\Desktop\Conputer Graphics\assimp\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\glm;C:\Users\Mark Noone\Desktop\Conputer Graphics\glew-1.10.0\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\Mark Noone\Desktop\Conputer Graphics\assimp\lib\Debug;C:\Users\Mark Noone\Desktop\Conputer Graphics\glew-1.10.0\lib\Release\Win32;C:\Users\Mark Noone\Desktop\Conputer Graphics\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -99,7 +99,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Mark Noone\Desktop\Conputer Graphics\assimp\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\glm;C:\Users\Mark Noone\Desktop\Conputer Graphics\glew-1.10.0\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Mark Noone\Desktop\Conputer Graphics\stb_image;C:\Users\Mark Noone\Desktop\Conputer Graphics\assimp\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\glm;C:\Users\Mark Noone\Desktop\Conputer Graphics\glew-1.10.0\include;C:\Users\Mark Noone\Desktop\Conputer Graphics\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

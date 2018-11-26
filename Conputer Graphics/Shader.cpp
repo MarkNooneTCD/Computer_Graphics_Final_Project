@@ -56,7 +56,7 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
 	glAttachShader(ShaderProgram, ShaderObj);
 }
 
-GLuint CompileShaders()
+GLuint CompileShaders(const char * vert, const char * frag)
 {
 	//Start the process of setting up our shaders by creating a program ID
 	//Note: we will link all the shaders together into this ID
@@ -69,8 +69,8 @@ GLuint CompileShaders()
 	}
 
 	// Create two shader objects, one for the vertex, and one for the fragment shader
-	AddShader(shaderProgramID, "../Shaders/phongVertexShader.txt", GL_VERTEX_SHADER);
-	AddShader(shaderProgramID, "../Shaders/phongFragmentShader.txt", GL_FRAGMENT_SHADER);
+	AddShader(shaderProgramID, vert, GL_VERTEX_SHADER);
+	AddShader(shaderProgramID, frag, GL_FRAGMENT_SHADER);
 
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { '\0' };
@@ -99,6 +99,6 @@ GLuint CompileShaders()
 	}
 	// Finally, use the linked shader program
 	// Note: this program will stay in effect for all draw calls until you replace it with another or explicitly disable its use
-	glUseProgram(shaderProgramID);
+	// glUseProgram(shaderProgramID);
 	return shaderProgramID;
 }

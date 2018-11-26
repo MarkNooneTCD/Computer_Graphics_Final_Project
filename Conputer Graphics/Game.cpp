@@ -1,7 +1,7 @@
 #pragma once
 #include "Game.hpp"
 
-GLuint shaderProgramID;
+GLuint phongProgramID, skyboxProgramID;
 std::unordered_map<std::string, Mesh> meshes;
 GLfloat rotate_y = 0.0f;
 GLuint VAOS[10];
@@ -9,6 +9,53 @@ mat4 modelTrans = identity_mat4();
 MyRectangle ground_plane;
 float zoom = 16.0f;
 float camera_alpha = 260.0f;
+unsigned int skyboxVAO, skyboxVBO;
+unsigned int cubemapTexture;
+
+float skyboxVertices[] = {
+	// positions          
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
 
 void display() {
 
@@ -17,13 +64,12 @@ void display() {
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(shaderProgramID);
-
+	glUseProgram(phongProgramID);
 
 	//Declare your uniform variables that will be used in your shader
-	int matrix_location = glGetUniformLocation(shaderProgramID, "model");
-	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
-	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
+	int matrix_location = glGetUniformLocation(phongProgramID, "model");
+	int view_mat_location = glGetUniformLocation(phongProgramID, "view");
+	int proj_mat_location = glGetUniformLocation(phongProgramID, "proj");
 
 	glm::mat4 view = glm::lookAt((meshes["gino"].getModelCoord() + glm::vec3((0.0f + (zoom*cos(camera_alpha * (M_PI /180)))), zoom, (0.0f + (zoom*sin(camera_alpha * (M_PI / 180))) ))),
 		 meshes["gino"].getModelCoord(),
@@ -78,7 +124,22 @@ void display() {
 	meshes["wheel4"].rotate_z_axis(1.0f);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, meshes["wheel4"].getModel().m);
 	glDrawArrays(GL_TRIANGLES, 0, meshes["wheel4"].mesh_data.mPointCount);
-	
+
+	// Sky map
+	glDepthFunc(GL_LEQUAL);
+	glUseProgram(skyboxProgramID);
+	mat4 sky = identity_mat4();
+	glBindVertexArray(skyboxVAO);
+	int sky_proj_location = glGetUniformLocation(skyboxProgramID, "projection");
+	int sky_view_location = glGetUniformLocation(skyboxProgramID, "view");
+	glUniformMatrix4fv(sky_proj_location, 1, GL_FALSE, glm::value_ptr(perspective));
+	glUniformMatrix4fv(sky_view_location, 1, GL_FALSE, sky.m);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS);
+
 	glutSwapBuffers();
 }
 
@@ -104,56 +165,74 @@ void updateScene() {
 void init()
 {
 	// Setup Shader
-	shaderProgramID = CompileShaders();
+	skyboxProgramID = CompileShaders("../Shaders/skyboxVertexShader.txt", "../Shaders/skyboxFragmentShader.txt");
+	glUseProgram(skyboxProgramID);
+
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	GLuint apos = glGetAttribLocation(skyboxProgramID, "aPos");
+	glEnableVertexAttribArray(apos);
+	glVertexAttribPointer(apos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	// load textures
+   // -------------
+	std::vector<std::string> faces
+	{
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg",
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg",
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg",
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg",
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg",
+		"C:\\Users\\Mark Noone\\Desktop\\Conputer Graphics\\Textures\\white.jpeg"
+	};
+	cubemapTexture = loadCubemap(faces);
+
+	glUniform1i(glGetUniformLocation(skyboxProgramID, "skybox"), 0);
 	glGenVertexArrays(10, VAOS);
 
+	phongProgramID = CompileShaders("../Shaders/phongVertexShader.txt", "../Shaders/phongFragmentShader.txt");
+
 	// load mesh into a vertex buffer array
-	meshes["carrot"] = Mesh("../Models/Trees/Carrot.obj", VAOS[0], shaderProgramID);
+	meshes["carrot"] = Mesh("../Models/Trees/Carrot.obj", VAOS[0], phongProgramID);
 	meshes["carrot"].generateObjectBufferMesh();
 	meshes["carrot"].translateModel(vec3(-5.0, 0.0, 0.0));
 
-	meshes["crystal"] = Mesh("../Models/Trees/Crystal.obj", VAOS[1], shaderProgramID);
+	meshes["crystal"] = Mesh("../Models/Trees/Crystal.obj", VAOS[1], phongProgramID);
 	meshes["crystal"].generateObjectBufferMesh();
 	meshes["crystal"].translateModel(vec3(5.0, 0.0, 0.0));
 
-	meshes["floor"] = Mesh("../Models/floor.obj", VAOS[2], shaderProgramID);
+	meshes["floor"] = Mesh("../Models/floor.obj", VAOS[2], phongProgramID);
 	meshes["floor"].generateObjectBufferMesh();
 
-	meshes["gino"] = Mesh("../Models/Chef Gino/Gino/Gino.dae", VAOS[3], shaderProgramID);
+	meshes["gino"] = Mesh("../Models/Chef Gino/Gino/Gino.dae", VAOS[3], phongProgramID);
 	meshes["gino"].generateObjectBufferMesh();
 	meshes["gino"].scaleModel(vec3(0.8, 0.8, 0.8));
 
-	meshes["car"] = Mesh("../Models/Car/car.obj", VAOS[4], shaderProgramID);
+	meshes["car"] = Mesh("../Models/Car/car.obj", VAOS[4], phongProgramID);
 	meshes["car"].generateObjectBufferMesh();
 	meshes["car"].translateModel(vec3(-10.0f, 0.6f, 10.0f));
 	meshes["car"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
 
-	meshes["wheel1"] = Mesh("../Models/Car/wheel.obj", VAOS[5], shaderProgramID);
+	meshes["wheel1"] = Mesh("../Models/Car/wheel.obj", VAOS[5], phongProgramID);
 	meshes["wheel1"].generateObjectBufferMesh();
 	meshes["wheel1"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
 
-	meshes["wheel2"] = Mesh("../Models/Car/wheel.obj", VAOS[6], shaderProgramID);
+	meshes["wheel2"] = Mesh("../Models/Car/wheel.obj", VAOS[6], phongProgramID);
 	meshes["wheel2"].generateObjectBufferMesh();
 	meshes["wheel2"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
 	meshes["wheel2"].setRotation(3);
 
-	meshes["wheel3"] = Mesh("../Models/Car/wheel.obj", VAOS[7], shaderProgramID);
+	meshes["wheel3"] = Mesh("../Models/Car/wheel.obj", VAOS[7], phongProgramID);
 	meshes["wheel3"].generateObjectBufferMesh();
 	meshes["wheel3"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
 	
-	meshes["wheel4"] = Mesh("../Models/Car/wheel.obj", VAOS[8], shaderProgramID);
+	meshes["wheel4"] = Mesh("../Models/Car/wheel.obj", VAOS[8], phongProgramID);
 	meshes["wheel4"].generateObjectBufferMesh();
 	meshes["wheel4"].scaleModel(vec3(2.0f, 2.0f, 2.0f));
 	meshes["wheel4"].setRotation(3);
-	
-	// Create ground plane
-	//glBindVertexArray(VAOS[2]);
-	//GLfloat ground_plane_vertices[] = { 130.0f, 0.0f, 65.0f, 82.0f, 0.0f, 225.0f, 240.0f, 0.0f, 272.0f, 290.0f, 0.0f, 114.0f };
-	//GLfloat ground_plane_colours[] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
-	//ground_plane = MyRectangle(ground_plane_vertices, ground_plane_colours, 4);
-	//ground_plane.generateObjectBuffer();
-	//ground_plane.linkBufferToShader(shaderProgramID);
-
 
 }
 
@@ -204,4 +283,34 @@ void processNormalKeys(unsigned char key, int x, int y) {
 			camera_alpha -= 5.0f;
 		}
 	}
+}
+
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrComponents;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
 }

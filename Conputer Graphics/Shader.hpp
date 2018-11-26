@@ -13,6 +13,6 @@
 //	void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
 //};
 
-GLuint CompileShaders();
+GLuint CompileShaders(const char * vert, const char * frag);
 static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
 char* readShaderSource(const char* shaderFile);

@@ -1,8 +1,6 @@
 #pragma once
-// Windows includes (For Time, IO, etc.)
 #define NOMINMAX
 #define _USE_MATH_DEFINES
-
 #include <windows.h>
 #include <mmsystem.h>
 #include <iostream>
