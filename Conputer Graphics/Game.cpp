@@ -25,9 +25,6 @@ void display() {
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
 
-	// --------------------------------------------------------------------------
-	// -----------------------  Root of the Hierarchy  --------------------------
-	// --------------------------------------------------------------------------
 	glm::mat4 view = glm::lookAt((meshes["gino"].getModelCoord() + glm::vec3((0.0f + (zoom*cos(camera_alpha * (M_PI /180)))), zoom, (0.0f + (zoom*sin(camera_alpha * (M_PI / 180))) ))),
 		 meshes["gino"].getModelCoord(),
 		glm::vec3(0.0f, 1.0f, 0.0f));
